@@ -2,261 +2,1129 @@ const API = "http://localhost:5000/api";
 
 let emailChallengeId = null;
 let smsChallengeId = null;
+
 let userEmail = "";
 let userMobile = "";
 
+
+/* =========================================================
+   ALL SCREENS
+   ========================================================= */
+
 const screens = [
-  "registerScreen","emailOtpScreen","emailWrongScreen","emailExpiredScreen",
-  "mobileOtpScreen","mobileWrongScreen","mobileMaxScreen","mfaMethodScreen",
-  "authSetupScreen","mfaVerifyScreen","successScreen"
+  "registerScreen",
+  "emailOtpScreen",
+  "emailWrongScreen",
+  "emailExpiredScreen",
+  "mobileOtpScreen",
+  "mobileWrongScreen",
+  "mobileMaxScreen",
+  "mfaMethodScreen",
+  "authSetupScreen",
+  "mfaVerifyScreen",
+  "successScreen"
 ];
 
-function show(id){
-  function show(id){
 
-  screens.forEach(s => {
-    document.getElementById(s).classList.remove("active");
-  });
+/* =========================================================
+   STEP NUMBER FOR EACH SCREEN
+   ========================================================= */
 
-  document.getElementById(id).classList.add("active");
+function getStepNumber(id) {
 
-  let step =
-    id === "registerScreen" ? 1 :
-    id.includes("email") ? 2 :
-    id.includes("mobile") ? 3 :
+  if (id === "registerScreen") {
+    return 1;
+  }
+
+  if (
+    id === "emailOtpScreen" ||
+    id === "emailWrongScreen" ||
+    id === "emailExpiredScreen"
+  ) {
+    return 2;
+  }
+
+  if (
+    id === "mobileOtpScreen" ||
+    id === "mobileWrongScreen" ||
+    id === "mobileMaxScreen"
+  ) {
+    return 3;
+  }
+
+  if (
     id === "mfaMethodScreen" ||
     id === "authSetupScreen" ||
-    id === "mfaVerifyScreen" ? 4 :
-    5;
-
-  document.querySelectorAll(".step").forEach((el,i) => {
-
-    const stepNumber = i + 1;
-
-    el.classList.remove("active","completed");
-
-    if(stepNumber === step){
-      el.classList.add("active");
-    }
-
-    if(stepNumber < step){
-      el.classList.add("completed");
-    }
-
-  });
-}
-}
-
-function error(id,msg=""){ document.getElementById(id).textContent = msg; }
-
-async function api(path, options={}){
-  const r = await fetch(API+path,{
-    credentials:"include",
-    headers:{"Content-Type":"application/json",...(options.headers||{})},
-    ...options
-  });
-  const data = await r.json().catch(()=>({}));
-  if(!r.ok) throw new Error(data.message || "Something went wrong");
-  return data;
-}
-
-function setupOtp(containerId){
-  const inputs = [...document.querySelectorAll(`#${containerId} input`)];
-  inputs.forEach((input,i)=>{
-    input.addEventListener("input",()=>{
-      input.value=input.value.replace(/\D/g,"").slice(0,1);
-      if(input.value && i<inputs.length-1) inputs[i+1].focus();
-    });
-    input.addEventListener("keydown",e=>{
-      if(e.key==="Backspace"&&!input.value&&i>0) inputs[i-1].focus();
-    });
-  });
-  return ()=>inputs.map(x=>x.value).join("");
-}
-const getEmailOtp = setupOtp("emailOtp");
-const getMobileOtp = setupOtp("mobileOtp");
-const getMfaOtp = setupOtp("mfaOtp");
-
-function clearOtp(id){document.querySelectorAll(`#${id} input`).forEach(x=>x.value="");}
-
-document.querySelectorAll(".eye").forEach(btn=>{
-  btn.onclick=()=>{
-    const x=document.getElementById(btn.dataset.target);
-    x.type=x.type==="password"?"text":"password";
-  };
-});
-
-document.getElementById("password").addEventListener("input",e=>{
-  const v=e.target.value;
-  document.getElementById("req-length").textContent=(v.length>=8?"✓":"○")+" At least 8 characters";
-  document.getElementById("req-upper").textContent=(/[A-Z]/.test(v)?"✓":"○")+" 1 uppercase letter";
-  document.getElementById("req-number").textContent=(/[0-9]/.test(v)?"✓":"○")+" 1 number";
-  document.getElementById("req-special").textContent=(/[^A-Za-z0-9]/.test(v)?"✓":"○")+" 1 special character";
-});
-
-document.getElementById("registerForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  error("registerError");
-  userEmail=document.getElementById("email").value.trim();
-  userMobile=document.getElementById("countryCode").value+" "+document.getElementById("mobile").value.trim();
-
-  try{
-    const data=await api("/register",{method:"POST",body:JSON.stringify({
-      name:document.getElementById("name").value.trim(),
-      email:userEmail,
-      mobile:document.getElementById("mobile").value.trim(),
-      password:document.getElementById("password").value,
-      confirmPassword:document.getElementById("password").value
-    })});
-    emailChallengeId=data.challengeId;
-    document.getElementById("emailDisplay").textContent=userEmail;
-    document.getElementById("emailWrongDisplay").textContent=userEmail;
-    document.getElementById("emailExpiredDisplay").textContent=userEmail;
-    show("emailOtpScreen");
-  }catch(err){error("registerError",err.message)}
-});
-
-document.getElementById("verifyEmail").onclick=async()=>{
-  const otp=getEmailOtp();
-  if(otp.length!==6){error("emailOtpError","Please enter all 6 digits.");return}
-  try{
-    await api("/verify-email-otp",{method:"POST",body:JSON.stringify({challengeId:emailChallengeId,otp})});
-    const data=await api("/send-sms-otp",{method:"POST",body:JSON.stringify({challengeId:emailChallengeId})});
-    smsChallengeId=data.challengeId;
-    document.getElementById("mobileDisplay").textContent=userMobile;
-    document.getElementById("mobileWrongDisplay").textContent=userMobile;
-    show("mobileOtpScreen");
-    clearOtp("mobileOtp");
-  }catch(err){
-    error("emailOtpError",err.message);
-    show("emailWrongScreen");
-    document.getElementById("emailWrongDisplay").textContent=userEmail;
+    id === "mfaVerifyScreen"
+  ) {
+    return 4;
   }
-};
 
-document.getElementById("retryEmail").onclick=()=>{clearOtp("emailOtp");error("emailOtpError");show("emailOtpScreen")};
-document.getElementById("newEmailCode").onclick=()=>{clearOtp("emailOtp");error("emailOtpError");show("emailOtpScreen")};
-
-document.getElementById("verifyMobile").onclick=async()=>{
-  const otp=getMobileOtp();
-  if(otp.length!==6){error("mobileOtpError","Please enter all 6 digits.");return}
-  try{
-    await api("/verify-sms-otp",{method:"POST",body:JSON.stringify({challengeId:smsChallengeId,otp})});
-    show("mfaMethodScreen");
-  }catch(err){
-    error("mobileOtpError",err.message);
-    show(err.message.toLowerCase().includes("maximum") ? "mobileMaxScreen" : "mobileWrongScreen");
+  if (id === "successScreen") {
+    return 5;
   }
-};
 
-document.getElementById("retryMobile").onclick=()=>{clearOtp("mobileOtp");error("mobileOtpError");show("mobileOtpScreen")};
-document.getElementById("newMobileCode").onclick=()=>{clearOtp("mobileOtp");error("mobileOtpError");show("mobileOtpScreen")};
+  return 1;
+}
 
-document.querySelectorAll(".method").forEach(m=>{
-  m.addEventListener("click",()=>{
-    document.querySelectorAll(".method").forEach(x=>x.classList.remove("selected"));
-    m.classList.add("selected");
-    m.querySelector("input").checked=true;
+
+/* =========================================================
+   SHOW SCREEN
+   ========================================================= */
+
+function show(id) {
+
+  screens.forEach(screenId => {
+
+    const screen = document.getElementById(screenId);
+
+    if (screen) {
+      screen.classList.remove("active");
+    }
+
   });
-});
 
-document.getElementById("mfaContinue").onclick=async()=>{
-  try{
-    const data = await api("/setup-mfa", {
-      method:"POST",
-      body:JSON.stringify({
-        email:userEmail
-      })
-    });
 
-    document.getElementById("qrImage").src = data.qrCode;
+  const target = document.getElementById(id);
 
-    show("authSetupScreen");
-  }catch(err){
-    error("mfaMethodError", err.message);
+  if (target) {
+    target.classList.add("active");
   }
-};
-document.getElementById("mfaBack").onclick=()=>show("mfaMethodScreen");
-document.getElementById("mfaVerifyContinue").onclick=()=>{clearOtp("mfaOtp");show("mfaVerifyScreen")};
-document.getElementById("verifyMfa").onclick = async () => {
 
-    const code = getMfaOtp();
 
-    if (code.length !== 6) {
-        error("mfaError", "Please enter all 6 digits.");
-        return;
+  updateSteps(id);
+  updateBackButton(id);
+}
+
+
+/* =========================================================
+   UPDATE 1 2 3 4 5 NAVIGATION
+   ========================================================= */
+
+function updateSteps(id) {
+
+  const currentStep = getStepNumber(id);
+
+  const steps = document.querySelectorAll(".step");
+
+  steps.forEach((step, index) => {
+
+    const stepNumber = index + 1;
+
+    step.classList.remove("active");
+    step.classList.remove("completed");
+
+    if (stepNumber === currentStep) {
+
+      step.classList.add("active");
+
+    } else if (stepNumber < currentStep) {
+
+      step.classList.add("completed");
+
     }
 
-    try {
+  });
+}
 
-        const data = await api("/verify-mfa", {
-            method: "POST",
-            body: JSON.stringify({
-                email: userEmail,
-                code: code
-            })
-        });
 
-        if (data.mfaEnabled) {
-            clearOtp("mfaOtp");
-            show("successScreen");
-        }
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
 
-    } catch (error) {
-        error("mfaError", error.message);
-    }
-};
+function updateBackButton(id) {
 
-document.getElementById("continueLogin").onclick=()=>alert("Login journey will be implemented in Part 2.");
-document.getElementById("goLogin").onclick=()=>alert("Login journey will be implemented in Part 2.");
-document.getElementById("backToRegister").onclick=()=>show("registerScreen");
-document.getElementById("resendEmail").onclick=()=>show("emailOtpScreen");
-document.getElementById("resendMobile").onclick=()=>show("mobileOtpScreen");
+  const backButton = document.getElementById("globalBack");
 
-show("registerScreen");
-document.getElementById("globalBack").onclick = () => {
+  if (!backButton) {
+    return;
+  }
+
+
+  /*
+    No back button on first registration screen
+  */
+
+  if (id === "registerScreen") {
+
+    backButton.style.visibility = "hidden";
+
+  } else {
+
+    backButton.style.visibility = "visible";
+
+  }
+}
+
+
+/* =========================================================
+   BACK BUTTON FUNCTIONALITY
+   ========================================================= */
+
+document.getElementById("globalBack").onclick = function () {
 
   const activeScreen =
     document.querySelector(".screen.active");
 
-  if(!activeScreen) return;
+  if (!activeScreen) {
+    return;
+  }
+
 
   const id = activeScreen.id;
 
-  if(id === "registerScreen"){
-    return;
-  }
 
-  if(
+  if (
     id === "emailOtpScreen" ||
     id === "emailWrongScreen" ||
     id === "emailExpiredScreen"
-  ){
+  ) {
+
     show("registerScreen");
     return;
+
   }
 
-  if(
+
+  if (
     id === "mobileOtpScreen" ||
     id === "mobileWrongScreen" ||
     id === "mobileMaxScreen"
-  ){
+  ) {
+
     show("emailOtpScreen");
     return;
+
   }
 
-  if(id === "mfaMethodScreen"){
+
+  if (id === "mfaMethodScreen") {
+
     show("mobileOtpScreen");
     return;
+
   }
 
-  if(id === "authSetupScreen"){
+
+  if (id === "authSetupScreen") {
+
     show("mfaMethodScreen");
     return;
+
   }
 
-  if(id === "mfaVerifyScreen"){
+
+  if (id === "mfaVerifyScreen") {
+
     show("authSetupScreen");
     return;
+
   }
+
 };
+
+
+/* =========================================================
+   ERROR MESSAGE
+   ========================================================= */
+
+function error(id, message = "") {
+
+  const element = document.getElementById(id);
+
+  if (element) {
+    element.textContent = message;
+  }
+
+}
+
+
+/* =========================================================
+   API HELPER
+   ========================================================= */
+
+async function api(path, options = {}) {
+
+  const response = await fetch(API + path, {
+
+    credentials: "include",
+
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    },
+
+    ...options
+
+  });
+
+
+  const data = await response
+    .json()
+    .catch(() => ({}));
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      data.message || "Something went wrong"
+    );
+
+  }
+
+
+  return data;
+}
+
+
+/* =========================================================
+   OTP INPUT SETUP
+   ========================================================= */
+
+function setupOtp(containerId) {
+
+  const inputs = [
+    ...document.querySelectorAll(
+      `#${containerId} input`
+    )
+  ];
+
+
+  inputs.forEach((input, index) => {
+
+
+    /* Only numbers */
+
+    input.addEventListener("input", () => {
+
+      input.value = input.value
+        .replace(/\D/g, "")
+        .slice(0, 1);
+
+
+      if (
+        input.value &&
+        index < inputs.length - 1
+      ) {
+
+        inputs[index + 1].focus();
+
+      }
+
+    });
+
+
+    /* Backspace */
+
+    input.addEventListener("keydown", event => {
+
+      if (
+        event.key === "Backspace" &&
+        !input.value &&
+        index > 0
+      ) {
+
+        inputs[index - 1].focus();
+
+      }
+
+    });
+
+
+    /* Arrow navigation */
+
+    input.addEventListener("keydown", event => {
+
+      if (
+        event.key === "ArrowLeft" &&
+        index > 0
+      ) {
+
+        inputs[index - 1].focus();
+
+      }
+
+
+      if (
+        event.key === "ArrowRight" &&
+        index < inputs.length - 1
+      ) {
+
+        inputs[index + 1].focus();
+
+      }
+
+    });
+
+  });
+
+
+  return function getOtp() {
+
+    return inputs
+      .map(input => input.value)
+      .join("");
+
+  };
+
+}
+
+
+const getEmailOtp =
+  setupOtp("emailOtp");
+
+const getMobileOtp =
+  setupOtp("mobileOtp");
+
+const getMfaOtp =
+  setupOtp("mfaOtp");
+
+
+/* =========================================================
+   CLEAR OTP
+   ========================================================= */
+
+function clearOtp(id) {
+
+  document
+    .querySelectorAll(`#${id} input`)
+    .forEach(input => {
+
+      input.value = "";
+
+    });
+
+}
+
+
+/* =========================================================
+   PASSWORD SHOW / HIDE
+   ========================================================= */
+
+document.querySelectorAll(".eye").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    const target =
+      document.getElementById(
+        button.dataset.target
+      );
+
+
+    if (!target) {
+      return;
+    }
+
+
+    if (target.type === "password") {
+
+      target.type = "text";
+
+    } else {
+
+      target.type = "password";
+
+    }
+
+  });
+
+});
+
+
+/* =========================================================
+   PASSWORD REQUIREMENTS
+   ========================================================= */
+
+const passwordInput =
+  document.getElementById("password");
+
+
+if (passwordInput) {
+
+  passwordInput.addEventListener("input", event => {
+
+    const value = event.target.value;
+
+
+    document.getElementById(
+      "req-length"
+    ).textContent =
+      (value.length >= 8 ? "✓" : "○") +
+      " At least 8 characters";
+
+
+    document.getElementById(
+      "req-upper"
+    ).textContent =
+      (/[A-Z]/.test(value) ? "✓" : "○") +
+      " 1 uppercase letter";
+
+
+    document.getElementById(
+      "req-number"
+    ).textContent =
+      (/[0-9]/.test(value) ? "✓" : "○") +
+      " 1 number";
+
+
+    document.getElementById(
+      "req-special"
+    ).textContent =
+      (/[^A-Za-z0-9]/.test(value) ? "✓" : "○") +
+      " 1 special character";
+
+  });
+
+}
+
+
+/* =========================================================
+   REGISTER
+   ========================================================= */
+
+document
+  .getElementById("registerForm")
+  .addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+
+    error("registerError");
+
+
+    const name =
+      document
+        .getElementById("name")
+        .value
+        .trim();
+
+
+    userEmail =
+      document
+        .getElementById("email")
+        .value
+        .trim();
+
+
+    const countryCode =
+      document
+        .getElementById("countryCode")
+        .value;
+
+
+    const mobile =
+      document
+        .getElementById("mobile")
+        .value
+        .trim();
+
+
+    userMobile =
+      countryCode + " " + mobile;
+
+
+    const password =
+      document
+        .getElementById("password")
+        .value;
+
+
+    /* Password validation */
+
+    const validPassword =
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[^A-Za-z0-9]/.test(password);
+
+
+    if (!validPassword) {
+
+      error(
+        "registerError",
+        "Please meet all password requirements."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      const data = await api(
+        "/register",
+        {
+          method: "POST",
+
+          body: JSON.stringify({
+
+            name: name,
+
+            email: userEmail,
+
+            mobile: mobile,
+
+            password: password,
+
+            confirmPassword: password
+
+          })
+
+        }
+      );
+
+
+      emailChallengeId =
+        data.challengeId;
+
+
+      document.getElementById(
+        "emailDisplay"
+      ).textContent = userEmail;
+
+
+      document.getElementById(
+        "emailWrongDisplay"
+      ).textContent = userEmail;
+
+
+      document.getElementById(
+        "emailExpiredDisplay"
+      ).textContent = userEmail;
+
+
+      clearOtp("emailOtp");
+
+
+      show("emailOtpScreen");
+
+
+    } catch (err) {
+
+      error(
+        "registerError",
+        err.message
+      );
+
+    }
+
+  });
+
+
+/* =========================================================
+   EMAIL OTP VERIFICATION
+   ========================================================= */
+
+document
+  .getElementById("verifyEmail")
+  .onclick = async () => {
+
+
+    const otp = getEmailOtp();
+
+
+    if (otp.length !== 6) {
+
+      error(
+        "emailOtpError",
+        "Please enter all 6 digits."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      await api(
+        "/verify-email-otp",
+        {
+          method: "POST",
+
+          body: JSON.stringify({
+
+            challengeId:
+              emailChallengeId,
+
+            otp: otp
+
+          })
+
+        }
+      );
+
+
+      /*
+        After email verification,
+        send SMS OTP.
+      */
+
+      const data = await api(
+        "/send-sms-otp",
+        {
+          method: "POST",
+
+          body: JSON.stringify({
+
+            challengeId:
+              emailChallengeId
+
+          })
+
+        }
+      );
+
+
+      smsChallengeId =
+        data.challengeId;
+
+
+      document.getElementById(
+        "mobileDisplay"
+      ).textContent =
+        userMobile;
+
+
+      document.getElementById(
+        "mobileWrongDisplay"
+      ).textContent =
+        userMobile;
+
+
+      clearOtp("mobileOtp");
+
+
+      error("emailOtpError");
+
+
+      show("mobileOtpScreen");
+
+
+    } catch (err) {
+
+      error(
+        "emailOtpError",
+        err.message
+      );
+
+
+      document.getElementById(
+        "emailWrongDisplay"
+      ).textContent =
+        userEmail;
+
+
+      show("emailWrongScreen");
+
+    }
+
+  };
+
+
+/* =========================================================
+   EMAIL RETRY
+   ========================================================= */
+
+document
+  .getElementById("retryEmail")
+  .onclick = () => {
+
+    clearOtp("emailOtp");
+
+    error("emailOtpError");
+
+    show("emailOtpScreen");
+
+  };
+
+
+/* =========================================================
+   EMAIL NEW CODE
+   ========================================================= */
+
+document
+  .getElementById("newEmailCode")
+  .onclick = () => {
+
+    clearOtp("emailOtp");
+
+    error("emailOtpError");
+
+    show("emailOtpScreen");
+
+  };
+
+
+/* =========================================================
+   MOBILE OTP VERIFICATION
+   ========================================================= */
+
+document
+  .getElementById("verifyMobile")
+  .onclick = async () => {
+
+
+    const otp = getMobileOtp();
+
+
+    if (otp.length !== 6) {
+
+      error(
+        "mobileOtpError",
+        "Please enter all 6 digits."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      await api(
+        "/verify-sms-otp",
+        {
+          method: "POST",
+
+          body: JSON.stringify({
+
+            challengeId:
+              smsChallengeId,
+
+            otp: otp
+
+          })
+
+        }
+      );
+
+
+      error("mobileOtpError");
+
+
+      show("mfaMethodScreen");
+
+
+    } catch (err) {
+
+      error(
+        "mobileOtpError",
+        err.message
+      );
+
+
+      const message =
+        err.message.toLowerCase();
+
+
+      if (
+        message.includes("maximum") ||
+        message.includes("attempt")
+      ) {
+
+        show("mobileMaxScreen");
+
+      } else {
+
+        show("mobileWrongScreen");
+
+      }
+
+    }
+
+  };
+
+
+/* =========================================================
+   MOBILE RETRY
+   ========================================================= */
+
+document
+  .getElementById("retryMobile")
+  .onclick = () => {
+
+    clearOtp("mobileOtp");
+
+    error("mobileOtpError");
+
+    show("mobileOtpScreen");
+
+  };
+
+
+/* =========================================================
+   MOBILE NEW CODE
+   ========================================================= */
+
+document
+  .getElementById("newMobileCode")
+  .onclick = () => {
+
+    clearOtp("mobileOtp");
+
+    error("mobileOtpError");
+
+    show("mobileOtpScreen");
+
+  };
+
+
+/* =========================================================
+   MFA METHOD SELECTION
+   ========================================================= */
+
+document
+  .querySelectorAll(".method")
+  .forEach(method => {
+
+    method.addEventListener("click", () => {
+
+
+      document
+        .querySelectorAll(".method")
+        .forEach(item => {
+
+          item.classList.remove(
+            "selected"
+          );
+
+        });
+
+
+      method.classList.add(
+        "selected"
+      );
+
+
+      const radio =
+        method.querySelector(
+          'input[type="radio"]'
+        );
+
+
+      if (radio) {
+
+        radio.checked = true;
+
+      }
+
+    });
+
+  });
+
+
+/* =========================================================
+   MFA SETUP
+   ========================================================= */
+
+document
+  .getElementById("mfaContinue")
+  .onclick = async () => {
+
+
+    error("mfaMethodError");
+
+
+    /*
+      Currently the assignment flow uses
+      Authenticator App MFA.
+    */
+
+    const selectedMethod =
+      document.querySelector(
+        'input[name="mfa"]:checked'
+      );
+
+
+    if (
+      selectedMethod &&
+      selectedMethod.value !== "authenticator"
+    ) {
+
+      error(
+        "mfaMethodError",
+        "For this registration flow, please select Authenticator App."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      const data = await api(
+        "/setup-mfa",
+        {
+          method: "POST",
+
+          body: JSON.stringify({
+
+            email: userEmail
+
+          })
+
+        }
+      );
+
+
+      const qrCode =
+        document.getElementById(
+          "qrCode"
+        );
+
+
+      qrCode.src =
+        data.qrCode;
+
+
+      show("authSetupScreen");
+
+
+    } catch (err) {
+
+      error(
+        "mfaMethodError",
+        err.message
+      );
+
+    }
+
+  };
+
+
+/* =========================================================
+   MFA BACK
+   ========================================================= */
+
+document
+  .getElementById("mfaBack")
+  .onclick = () => {
+
+    show("mfaMethodScreen");
+
+  };
+
+
+/* =========================================================
+   GO TO MFA VERIFICATION
+   ========================================================= */
+
+document
+  .getElementById("mfaVerifyContinue")
+  .onclick = () => {
+
+    clearOtp("mfaOtp");
+
+    error("mfaError");
+
+    show("mfaVerifyScreen");
+
+  };
+
+
+/* =========================================================
+   VERIFY MFA CODE
+   ========================================================= */
+
+document
+  .getElementById("verifyMfa")
+  .onclick = async () => {
+
+
+    const code =
+      getMfaOtp();
+
+
+    if (code.length !== 6) {
+
+      error(
+        "mfaError",
+        "Please enter all 6 digits."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      const data = await api(
+        "/verify-mfa",
+        {
+          method: "POST",
+
+          body: JSON.stringify({
+
+            email: userEmail,
+
+            code: code
+
+          })
+
+        }
+      );
+
+
+      if (data.mfaEnabled) {
+
+        clearOtp("mfaOtp");
+
+        error("mfaError");
+
+        show("successScreen");
+
+      }
+
+    } catch (err) {
+
+      error(
+        "mfaError",
+        err.message
+      );
+
+    }
+
+  };
+
+
+/* =========================================================
+   CONTINUE TO LOGIN
+   PART 2
+   ========================================================= */
+
+document
+  .getElementById("continueLogin")
+  .onclick = () => {
+
+    alert(
+      "Login journey will be implemented in Part 2."
+    );
+
+  };
+
+
+/* =========================================================
+   LOGIN LINK
+   PART 2
+   ========================================================= */
+
+document
+  .getElementById("goLogin")
+  .onclick = () => {
+
+    alert(
+      "Login journey will be implemented in Part 2."
+    );
+
+  };
+
+
+/* =========================================================
+   INITIAL SCREEN
+   ========================================================= */
+
+show("registerScreen");
