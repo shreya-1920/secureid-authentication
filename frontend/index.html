@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureID — Registration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+
+      <header class="brand">
+        <div class="shield">◆</div>
+        <div>
+          <div class="brand-name">SecureID</div>
+          <div class="brand-sub">Secure access made simple</div>
+        </div>
+      </header>
+
+      <div class="step-navigation">
+  <button class="back-arrow" id="globalBack" type="button">←</button>
+
+  <div class="steps">
+    <span class="step active" data-step="1">1</span>
+    <span class="step" data-step="2">2</span>
+    <span class="step" data-step="3">3</span>
+    <span class="step" data-step="4">4</span>
+    <span class="step" data-step="5">5</span>
+  </div>
+</div>
+
+      <!-- 1. REGISTER -->
+      <section class="screen active" id="registerScreen">
+        <div class="top-icon">+</div>
+        <h1>Create your account</h1>
+        <p class="subtitle">Let's get you started</p>
+
+        <form id="registerForm">
+          <label for="name">Full Name</label>
+          <input id="name" type="text" placeholder="Priya Sharma" autocomplete="name" required>
+
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="priya.sharma@email.com" autocomplete="email" required>
+
+          <label for="mobile">Mobile Number</label>
+          <div class="mobile-row">
+            <select id="countryCode" aria-label="Country code">
+              <option value="+91">+91</option>
+            </select>
+            <input id="mobile" type="tel" placeholder="98765 43210" autocomplete="tel" required>
+          </div>
+
+          <label for="password">Password</label>
+          <div class="password">
+            <input id="password" type="password" placeholder="••••••••••" required>
+            <button type="button" class="eye" data-target="password">◉</button>
+          </div>
+
+          <div class="requirements">
+            <strong>Password must contain:</strong>
+            <span id="req-length">✓ At least 8 characters</span>
+            <span id="req-upper">✓ 1 uppercase letter</span>
+            <span id="req-number">✓ 1 number</span>
+            <span id="req-special">✓ 1 special character</span>
+          </div>
+
+          <label class="terms">
+            <input type="checkbox" id="terms" required>
+            <span>I agree to the <a href="#" onclick="return false">Terms &amp; Conditions</a><br>
+              and <a href="#" onclick="return false">Privacy Policy</a></span>
+          </label>
+
+          <div id="registerError" class="error"></div>
+          <button class="primary" type="submit">Create Account</button>
+        </form>
+
+        <p class="switch">Already have an account? <button class="text-button" id="goLogin">Login</button></p>
+      </section>
+
+      <!-- 2. EMAIL OTP -->
+      <section class="screen" id="emailOtpScreen">
+        <div class="top-icon">✉</div>
+        <h1>Verify your email</h1>
+        <p class="subtitle">We have sent a 6-digit code to<br><b id="emailDisplay">your email</b></p>
+
+        <div class="otp" id="emailOtp">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+        </div>
+
+        <div id="emailOtpError" class="error"></div>
+        <p class="expires">Code expires in <b id="emailTimer">02:45</b></p>
+        <button class="text-button resend" id="resendEmail">Resend code (00:25)</button>
+        <button class="primary" id="verifyEmail">Continue</button>
+        <button class="bottom-link" id="backToRegister">Didn't receive the code?</button>
+      </section>
+
+      <!-- 2a. EMAIL WRONG -->
+      <section class="screen" id="emailWrongScreen">
+        <div class="top-icon danger">✉</div>
+        <h1>Verify your email</h1>
+        <p class="subtitle">We have sent a 6-digit code to<br><b id="emailWrongDisplay">your email</b></p>
+
+        <div class="otp invalid">
+          <input value="4" maxlength="1">
+          <input value="8" maxlength="1">
+          <input value="2" maxlength="1">
+          <input value="9" maxlength="1">
+          <input value="1" maxlength="1">
+          <input class="bad" value="0" maxlength="1">
+        </div>
+
+        <div class="error strong">Incorrect code. Please try again.<br>You have <b id="emailRemaining">4</b> attempts left.</div>
+        <p class="expires">Code expires in <b>01:15</b></p>
+        <button class="text-button resend">Resend code (00:25)</button>
+        <button class="primary" id="retryEmail">Try again</button>
+        <button class="bottom-link">Didn't receive the code?</button>
+      </section>
+
+      <!-- 2b. EMAIL EXPIRED -->
+      <section class="screen" id="emailExpiredScreen">
+        <div class="top-icon danger">✉</div>
+        <h1>Verify your email</h1>
+        <p class="subtitle">We have sent a 6-digit code to<br><b id="emailExpiredDisplay">your email</b></p>
+
+        <div class="otp disabled">
+          <input disabled><input disabled><input disabled><input disabled><input disabled><input disabled>
+        </div>
+
+        <div class="error strong">This code has expired.</div>
+        <button class="primary" id="newEmailCode">Resend New Code</button>
+        <button class="bottom-link">Didn't receive the code?</button>
+      </section>
+
+      <!-- 3. MOBILE OTP -->
+      <section class="screen" id="mobileOtpScreen">
+        <div class="top-icon phone">☎</div>
+        <h1>Verify your mobile</h1>
+        <p class="subtitle">We have sent a 6-digit code to<br><b id="mobileDisplay">+91 98765 43210</b></p>
+
+        <div class="otp" id="mobileOtp">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+        </div>
+
+        <div id="mobileOtpError" class="error"></div>
+        <p class="expires">Code expires in <b id="mobileTimer">02:45</b></p>
+        <button class="text-button resend" id="resendMobile">Resend code (00:25)</button>
+        <button class="primary" id="verifyMobile">Continue</button>
+        <button class="bottom-link">Wrong number? <span class="text-button">Change</span></button>
+      </section>
+
+      <!-- 3a. MOBILE WRONG -->
+      <section class="screen" id="mobileWrongScreen">
+        <div class="top-icon phone danger">☎</div>
+        <h1>Verify your mobile</h1>
+        <p class="subtitle">We have sent a 6-digit code to<br><b id="mobileWrongDisplay">+91 98765 43210</b></p>
+
+        <div class="otp invalid">
+          <input value="1"><input value="2"><input value="3"><input value="4"><input value="5"><input class="bad" value="6">
+        </div>
+
+        <div class="error strong">Incorrect code. Please try again.<br>You have <b>1</b> attempt left.</div>
+        <p class="expires">Code expires in <b>01:02</b></p>
+        <button class="text-button resend">Resend code (00:25)</button>
+        <button class="primary" id="retryMobile">Try again</button>
+        <button class="bottom-link">Wrong number? <span class="text-button">Change</span></button>
+      </section>
+
+      <!-- 3b. MOBILE MAX -->
+      <section class="screen" id="mobileMaxScreen">
+        <div class="top-icon phone danger">☎</div>
+        <h1>Verify your mobile</h1>
+        <p class="subtitle">We have sent a 6-digit code to<br><b>+91 98765 43210</b></p>
+
+        <div class="otp disabled">
+          <input disabled><input disabled><input disabled><input disabled><input disabled><input disabled>
+        </div>
+
+        <div class="error strong">Maximum attempts reached.<br>Please request a new code.</div>
+        <button class="primary" id="newMobileCode">Resend New Code</button>
+        <button class="bottom-link">Wrong number? <span class="text-button">Change</span></button>
+      </section>
+
+      <!-- 4. MFA METHOD -->
+      <section class="screen" id="mfaMethodScreen">
+        <div class="top-icon shield-icon">⬟</div>
+        <h1>Set up MFA</h1>
+        <p class="subtitle">Add an extra layer of security<br>to protect your account.</p>
+
+        <div class="methods">
+          <label class="method selected">
+            <input type="radio" name="mfa" value="authenticator" checked>
+            <span class="method-icon">◉</span>
+            <span><b>Authenticator App</b><small>Google Authenticator / Authy</small></span>
+            <span class="radio"></span>
+          </label>
+
+          <label class="method">
+            <input type="radio" name="mfa" value="sms">
+            <span class="method-icon">▣</span>
+            <span><b>SMS Authentication</b><small>Receive codes on your mobile</small></span>
+            <span class="radio"></span>
+          </label>
+
+          <label class="method">
+            <input type="radio" name="mfa" value="email">
+            <span class="method-icon">✉</span>
+            <span><b>Email Authentication</b><small>Receive codes on your email</small></span>
+            <span class="radio"></span>
+          </label>
+        </div>
+
+        <button class="primary" id="mfaContinue">Continue</button>
+      </section>
+
+      <!-- 5. AUTHENTICATOR SETUP -->
+      <section class="screen" id="authSetupScreen">
+        <div class="top-icon shield-icon">⬟</div>
+        <h1>Authenticator Setup</h1>
+        <p class="subtitle">Open your authenticator app and<br>scan this QR code</p>
+
+        <div class="qr">
+    <img id="qrImage" alt="MFA QR Code">
+</div>
+<div id="mfaMethodError" class="error"></div>
+
+        <button class="bottom-link">Can't scan? Enter setup key</button>
+        <div class="setup-actions">
+          <button class="secondary" id="mfaBack">Back</button>
+          <button class="primary small" id="mfaVerifyContinue">Continue</button>
+        </div>
+      </section>
+
+      <!-- 6. MFA VERIFICATION -->
+      <section class="screen" id="mfaVerifyScreen">
+        <div class="top-icon shield-icon">⬟</div>
+        <h1>Enter the 6-digit code</h1>
+        <p class="subtitle">Enter the code from your<br>authenticator app</p>
+
+        <div class="otp" id="mfaOtp">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+        </div>
+
+        <div id="mfaError" class="error"></div>
+        <p class="expires">Code expires in <b>00:28</b></p>
+        <button class="primary" id="verifyMfa">Continue</button>
+        <button class="bottom-link">Can't access your app?</button>
+      </section>
+
+      <!-- 7. SUCCESS -->
+      <section class="screen" id="successScreen">
+        <div class="success-icon">✓</div>
+        <h1>Account created!</h1>
+        <p class="subtitle">Your account has been created<br>successfully and MFA is enabled.</p>
+
+        <div class="success-list">
+          <span>✓ <b>Email verified</b></span>
+          <span>✓ <b>Mobile verified</b></span>
+          <span>✓ <b>MFA enabled</b></span>
+        </div>
+
+        <button class="primary" id="continueLogin">Continue to Login</button>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
