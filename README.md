@@ -1,119 +1,369 @@
-#SecureID Authentication & Registration System
+# SecureID — IAM Authentication System
 
-A full-stack Identity and Access Management (IAM) authentication system built as part of an internship assignment.
+SecureID is an Identity and Access Management (IAM) authentication system developed as part of the IAM Authentication assignment.
 
-The application implements secure user registration, OTP-based verification, multi-factor authentication (MFA), login authentication, server-side sessions, and JWT-based protected APIs.
+The project implements a multi-step user registration and authentication architecture using a frontend built with HTML, CSS and JavaScript, a Node.js and Express.js backend, and MongoDB Atlas for data storage.
 
-## 🚀 Tech Stack
+---
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
+## Live Deployment
 
-### Backend
-- Node.js
-- Express.js
+### Frontend — Vercel
+
+**Live Registration Application:**
+
+https://shreya-secureid.vercel.app
+
+### Backend — Render
+
+**Backend API:**
+
+https://secureid-authentication.onrender.com
+
+### GitHub Repository
+
+https://github.com/shreya-1920/secureid-authentication
 
 ### Database
-- MongoDB
 
-### Security & Authentication
-- bcrypt password hashing
-- OTP generation and verification
-- Multi-Factor Authentication (MFA)
-- Server-side sessions
-- JWT authentication
-- Secure HTTP cookies
+MongoDB Atlas is used as the cloud database for storing user accounts and authentication challenge information.
 
-## 🔐 Planned Features
+---
 
-- User registration
-- Email OTP verification
-- SMS OTP verification
-- OTP expiry and attempt limits
-- MFA enablement
-- Login with email and password
-- Failed-login attempt handling
-- Temporary account lockout
-- Email/SMS OTP-based login verification
-- Server-side session authentication
-- JWT authentication
-- Protected API endpoints
-- Logout and session invalidation
-- Responsive authentication interface
+# Part 1 — Registration Journey
 
-## 🔄 Authentication Flows
+Part 1 implements the complete Registration Journey required by the assignment.
 
-### Registration
-
-Registration Form  
-↓  
-Email OTP Verification  
-↓  
-SMS OTP Verification  
-↓  
-MFA Enabled  
-↓  
-Registration Success  
-↓  
-Login
-
-### Login
-
-Login  
-↓  
-Credential Validation  
-↓  
-MFA Required  
-↓  
-Email/SMS OTP  
-↓  
-OTP Verification  
-↓  
-Authenticated Session  
-↓  
-Dashboard
-
-## 📡 API Endpoints
-
-| Method | Endpoint | Purpose |
-|---|---|---|
-| POST | `/api/register` | Register a new user |
-| POST | `/api/send-email-otp` | Generate email OTP |
-| POST | `/api/verify-email-otp` | Verify email OTP |
-| POST | `/api/send-sms-otp` | Generate SMS OTP |
-| POST | `/api/verify-sms-otp` | Verify SMS OTP |
-| POST | `/api/login` | Authenticate user |
-| POST | `/api/verify-login-otp` | Verify login OTP |
-| GET | `/api/me` | Get authenticated user |
-| POST | `/api/logout` | Logout and invalidate session |
-| POST | `/api/token` | Generate JWT |
-| GET | `/api/protected` | Access protected resource |
-
-## 🛡️ Security Considerations
-
-- Passwords are hashed before storage.
-- OTPs are generated on the backend.
-- OTPs are stored only as protected representations.
-- OTPs have expiry times and limited verification attempts.
-- OTPs are single-use.
-- Authentication decisions are handled by the backend.
-- Session cookies use secure attributes such as HttpOnly, Secure and SameSite.
-- JWTs are short-lived.
-- Authentication tokens are not stored in localStorage.
-
-## 📁 Project Structure
+## Registration Flow
 
 ```text
-iam-authentication-system/
+Registration
+     ↓
+Email OTP
+     ↓
+SMS OTP
+     ↓
+MFA Setup
+     ↓
+MFA Verification
+     ↓
+Registration Success
+     ↓
+Login
+
+
+Registration Features
+1. Registration Form
+
+The registration screen collects:
+
+Full name
+Email address
+Mobile number
+Password
+Password confirmation
+Terms and Privacy agreement
+
+The backend validates the submitted registration information before creating the account.
+
+2. Password Security
+
+Password requirements include:
+
+Minimum 8 characters
+At least one uppercase letter
+At least one number
+At least one special character
+
+Passwords are never stored as plain text.
+
+The backend uses bcrypt to hash passwords before storing them in MongoDB.
+
+3. Email OTP Verification
+
+After successful registration:
+
+Registration
+     ↓
+Generate Email OTP
+     ↓
+Create OTP Challenge
+     ↓
+Store Protected OTP Hash
+     ↓
+Return Challenge ID
+     ↓
+Email OTP Verification
+
+The OTP is:
+
+Generated on the backend
+Six digits
+Stored as a protected hash
+Associated with a challenge ID
+Given an expiry time
+Limited to a fixed number of verification attempts
+Invalidated after successful verification
+Simulated Email Delivery
+
+Email delivery is simulated as specified in the assignment guidelines.
+
+The actual OTP is generated and verified by the backend.
+
+The normal registration API does not return the OTP directly to the frontend.
+
+4. SMS OTP Verification
+
+After successful email verification:
+
+Email Verification
+       ↓
+Generate SMS OTP
+       ↓
+Create SMS Challenge
+       ↓
+Store Protected OTP Hash
+       ↓
+SMS OTP Verification
+
+SMS delivery is simulated according to the assignment requirements.
+
+The SMS OTP:
+
+Is generated on the backend
+Is stored as a protected hash
+Has an expiry time
+Has limited verification attempts
+Is single-use
+Is invalidated after successful verification
+5. Multi-Factor Authentication
+
+After successful SMS verification, the registration journey proceeds to MFA setup.
+
+The MFA flow includes:
+
+SMS Verification
+       ↓
+MFA Setup
+       ↓
+Generate Authenticator Secret
+       ↓
+Generate QR Code
+       ↓
+User Configures Authenticator
+       ↓
+Enter 6-Digit MFA Code
+       ↓
+Verify MFA
+       ↓
+MFA Enabled
+
+The backend generates the MFA secret and handles MFA verification.
+
+6. Registration Success
+
+After successful MFA verification, the user is shown the registration success screen.
+
+The completed registration journey confirms:
+
+Email verification
+Mobile verification
+MFA verification
+Successful account registration
+Frontend Screens
+
+The Registration Journey includes the following screens:
+
+Registration Form
+Email OTP
+Email OTP — Wrong Code
+Email OTP — Expired
+SMS OTP
+SMS OTP — Wrong Code
+SMS OTP — Maximum Attempts
+MFA Method
+Authenticator Setup
+MFA Verification
+Registration Success
+
+The frontend dynamically changes screens based on the backend response.
+
+OTP Implementation
+
+OTP generation and verification are performed entirely on the backend.
+
+Example OTP challenge structure:
+
+{
+  "challengeId": "example-challenge-id",
+  "userId": "example-user-id",
+  "channel": "email",
+  "otpHash": "protected-hash",
+  "expiresAt": "2026-08-27T15:30:00.000Z",
+  "attempts": 0
+}
+OTP Security Rules
+
+The implementation follows these rules:
+
+OTPs are generated on the server.
+OTPs are not generated by frontend JavaScript.
+The normal API response does not return the real OTP.
+Only a protected representation of the OTP is stored.
+OTPs have a short expiry time.
+OTP verification attempts are limited.
+OTPs are single-use.
+OTPs are invalidated after successful verification.
+Test-Only OTP Mechanism
+
+Email and SMS delivery are simulated for this assignment.
+
+For evaluator testing, the backend provides a test-only mechanism for retrieving the generated OTP.
+
+The test mechanism is intended only for evaluation of the simulated OTP flow.
+
+Example:
+
+GET /api/test/otp/:challengeId
+
+Example URL:
+
+https://secureid-authentication.onrender.com/api/test/otp/<challengeId>
+
+The endpoint can return the generated OTP for the specified challenge when test mode is enabled.
+
+Example response:
+
+{
+  "success": true,
+  "challengeId": "example-challenge-id",
+  "otp": "482913",
+  "expiresAt": "2026-08-27T15:30:00.000Z"
+}
+
+The OTP still follows the configured expiry and challenge rules.
+
+API Structure
+Registration APIs
+POST /api/register
+POST /api/send-email-otp
+POST /api/verify-email-otp
+POST /api/send-sms-otp
+POST /api/verify-sms-otp
+Login APIs
+POST /api/login
+POST /api/verify-login-otp
+Session APIs
+GET /api/me
+POST /api/logout
+JWT APIs
+POST /api/token
+GET /api/protected
+Test API
+GET /api/test/otp/:challengeId
+Technology Stack
+Frontend
+HTML5
+CSS3
+JavaScript
+Backend
+Node.js
+Express.js
+Database
+MongoDB
+MongoDB Atlas
+Authentication and Security
+bcrypt
+Express Session
+JWT
+OTP hashing
+Multi-Factor Authentication
+Authenticator-based MFA
+HTTP-only cookies
+Deployment
+Vercel — Frontend
+Render — Backend
+MongoDB Atlas — Database
+Security Implementation
+
+Authentication and security decisions are handled by the backend.
+
+Password Security
+
+Passwords are hashed using bcrypt before being stored.
+
+OTP Security
+
+OTP challenges use protected OTP hashes instead of storing the plain OTP in the database.
+
+OTP verification includes:
+
+Expiry validation
+Attempt limitation
+Single-use verification
+Challenge invalidation
+Session Authentication
+
+The application uses server-side sessions for authenticated users.
+
+Authentication cookies are configured with security-related attributes such as:
+
+HttpOnly
+Secure
+SameSite
+JWT Authentication
+
+The backend supports JWT-based authentication through the token API.
+
+JWTs are short-lived and are validated by the backend before protected API access is allowed.
+
+Authentication tokens are not stored in browser localStorage.
+
+Project Architecture
+┌─────────────────────────────────────┐
+│        HTML / CSS / JavaScript      │
+│             Frontend                │
+└──────────────────┬──────────────────┘
+                   │
+                   │ HTTP / JSON
+                   ▼
+┌─────────────────────────────────────┐
+│          Node.js + Express          │
+│              Backend                │
+├─────────────────────────────────────┤
+│ Registration                         │
+│ Authentication                      │
+│ OTP / MFA                            │
+│ Session Management                  │
+│ JWT Authentication                  │
+└──────────────────┬──────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────┐
+│            MongoDB Atlas            │
+│      User / Challenge Storage       │
+└─────────────────────────────────────┘
+Project Structure
+secureid-authentication/
 │
 ├── backend/
+│   │
+│   ├── config/
+│   │   └── db.js
+│   │
 │   ├── models/
+│   │   ├── User.js
+│   │   └── OTPChallenge.js
+│   │
 │   ├── routes/
-│   ├── middleware/
+│   │   └── auth.js
+│   │
 │   ├── utils/
-│   └── server.js
+│   │   └── otp.js
+│   │
+│   ├── server.js
+│   ├── package.json
+│   └── .env
 │
 ├── frontend/
 │   ├── index.html
@@ -121,3 +371,74 @@ iam-authentication-system/
 │   └── app.js
 │
 └── README.md
+Local Development
+Prerequisites
+
+Install:
+
+Node.js
+npm
+MongoDB Atlas account
+Git
+Installation
+
+Clone the repository:
+
+git clone https://github.com/shreya-1920/secureid-authentication.git
+
+Enter the project:
+
+cd secureid-authentication
+
+Install backend dependencies:
+
+cd backend
+npm install
+Environment Variables
+
+Create a .env file inside the backend directory.
+
+Example:
+
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+SESSION_SECRET=your_session_secret
+JWT_SECRET=your_jwt_secret
+TEST_MODE=true
+
+Do not commit the .env file to GitHub.
+
+Run Backend Locally
+
+From the backend directory:
+
+npm start
+
+The backend will run on:
+
+http://localhost:5000
+Run Frontend Locally
+
+Open the frontend folder using a local development server such as VS Code Live Server.
+
+Example:
+
+http://localhost:5500
+Deployment
+Frontend Deployment
+
+The frontend is hosted on Vercel.
+
+Live URL:
+
+https://shreya-secureid.vercel.app
+Backend Deployment
+
+The backend is hosted on Render.
+
+Live URL:
+
+https://secureid-authentication.onrender.com
+Database Deployment
+
+MongoDB Atlas provides the cloud database used by the deployed backend.
