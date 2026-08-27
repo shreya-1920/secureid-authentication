@@ -1,188 +1,143 @@
-
-
-
 # SecureID — IAM Authentication System
 
-SecureID is an Identity and Access Management (IAM) authentication system built as part of an IAM Authentication assignment.
+A full-stack Identity and Access Management (IAM) authentication system built using HTML, CSS, JavaScript, Node.js, Express and MongoDB.
 
-The project currently implements the complete Registration Journey with password validation, email OTP verification, SMS OTP verification, and Multi-Factor Authentication (MFA).
+## 🚀 Live Demo
 
-**Part 1 Status: Completed**
-
-
-
-
-## Live Demo
-
-### Frontend
+**Vercel:**  
 https://shreya-secureid.vercel.app
 
-### Backend API
-https://secureid-authentication.onrender.com
+## 💻 GitHub Repository
 
-### GitHub Repository
 https://github.com/shreya-1920/secureid-authentication
 
-## Features
+## ✨ Features
 
-- User registration with name, email, mobile number, and password
-- Password strength validation
-- Secure password hashing using bcrypt
-- Duplicate email and mobile validation
-- Backend-generated Email OTP
+### Registration Journey
+
+- User registration
+- Password validation
+- Password hashing
 - Email OTP verification
-- OTP expiry and attempt limits
-- Invalid and expired OTP handling
-- Backend-generated SMS OTP
-- Simulated Email and SMS OTP delivery
 - SMS OTP verification
-- Maximum-attempt handling
-- Multi-Factor Authentication (MFA)
-- Authenticator-based MFA setup
-- QR code generation
-- 6-digit MFA verification
-- Registration success screen
-- Responsive registration interface
-## Registration Flow
+- MFA setup
+- MFA verification
+- Registration success
 
+### Login Journey
 
+- Email/username and password login
+- Show/hide password
+- Remember me option
+- MFA verification
+- Email OTP verification
+- OTP expiry and attempt handling
+- Authenticated session
+- Logout
+- Protected user information
 
-1.Registration
-      
-2.Email OTP Verification
-      
-3.SMS OTP Verification
-      
-4.MFA Setup
-      
-5.MFA Verification
-      
-6.Registration Success
+## 🔐 Authentication
 
-The authentication and security decisions are handled by the backend, while the frontend is responsible for displaying the registration journey and communicating with the APIs.
-### 5. OTP Implementation
+The backend handles authentication and security-related decisions.
 
+Implemented:
 
+- Password hashing
+- OTP generation and verification
+- OTP expiry
+- OTP attempt limits
+- Session-based authentication
+- JWT-based authentication
+- Protected API routes
+- MFA
 
-OTP generation and verification are performed on the backend.
-
-For both Email and SMS verification:
-
-- OTP is generated on the server.
-- OTP is not generated in frontend JavaScript.
-- OTP is not returned in the normal registration API response.
-- Only a protected representation of the OTP is stored.
-- OTPs have a short expiry period.
-- Verification attempts are limited.
-- OTPs are single-use.
-- OTP challenges are invalidated after successful verification.
-
-Email and SMS delivery are simulated as specified in the assignment guidelines.
-## Tech Stack
-
+## 🛠️ Tech Stack
 
 ### Frontend
-- HTML5
-- CSS3
+
+- HTML
+- CSS
 - JavaScript
 
 ### Backend
+
 - Node.js
 - Express.js
-
-### Database
-- MongoDB Atlas
-
-### Security
-- bcrypt
-- Express Session
-- OTP hashing
-- Multi-Factor Authentication
+- MongoDB
 
 ### Deployment
-- Vercel
-- Render
-- MongoDB Atlas
 
+- Vercel — Frontend
+- Render — Backend
+- MongoDB Atlas — Database
 
-## API Endpoints
+## 🔄 Authentication Flow
 
 ### Registration
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| POST | `/api/register` | Create a new user and start email verification |
-| POST | `/api/send-email-otp` | Generate/send simulated email OTP |
-| POST | `/api/verify-email-otp` | Verify email OTP |
-| POST | `/api/send-sms-otp` | Generate/send simulated SMS OTP |
-| POST | `/api/verify-sms-otp` | Verify SMS OTP |
+Registration  
+↓  
+Email OTP  
+↓  
+SMS OTP  
+↓  
+MFA Setup  
+↓  
+MFA Verification  
+↓  
+Registration Success
 
-### Authentication
+### Login
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| POST | `/api/login` | Login |
-| POST | `/api/verify-login-otp` | Verify login OTP |
-| GET | `/api/me` | Get authenticated user |
-| POST | `/api/logout` | Logout |
-| POST | `/api/token` | Generate JWT |
-| GET | `/api/protected` | Protected API |
-## Local setup
+Login  
+↓  
+Credentials Validation  
+↓  
+MFA Required  
+↓  
+Email OTP  
+↓  
+OTP Verification  
+↓  
+Authenticated Session  
+↓  
+Dashboard
 
-Click **Local setup** and paste:
+## 📡 API Endpoints
 
+- `POST /api/register`
+- `POST /api/send-email-otp`
+- `POST /api/verify-email-otp`
+- `POST /api/send-sms-otp`
+- `POST /api/verify-sms-otp`
+- `POST /api/login`
+- `POST /api/verify-login-otp`
+- `GET /api/me`
+- `POST /api/logout`
+- `POST /api/token`
+- `GET /api/protected`
 
-### Prerequisites
+## 📱 Responsive Design
 
-- Node.js
-- npm
-- MongoDB Atlas account
-- Git
+The application is designed to work across:
 
-### Clone the Repository
+- Desktop
+- Laptop
+- Tablet
+- Mobile devices
 
-```bash
-git clone https://github.com/shreya-1920/secureid-authentication.git
-cd secureid-authentication
+## 🧪 OTP Testing
 
-Install Dependencies
-cd backend
-npm install
-Environment Variables
+Email/SMS delivery is simulated for this assignment.
 
-Create a .env file inside the backend directory:
+OTP generation and verification are handled by the backend. Generated OTPs can be viewed through the backend server logs for evaluator testing.
 
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-SESSION_SECRET=your_session_secret
-JWT_SECRET=your_jwt_secret
+## 📚 Assignment
 
-Do not commit the .env file or expose secret values publicly.
+This project was developed as part of the IAM Authentication & Registration assignment.
 
-Start the Backend
+I have also completed the assigned IAM Basics learning videos.
 
+## 👤 Author
 
-npm start
-
-The backend runs locally on:
-
-http://localhost:5000
-
-Run the Frontend
-
-Open the frontend directory using a local development server such as VS Code Live Server.
-
-
-
-##Author
 **Shreya**
-
-SecureID — IAM Authentication System
-
-Built as part of the IAM Authentication & Registration assignment.
-
-### Project Status
-
-**Part 1 — Registration Journey: Completed ✅**
-
-Registration → Email OTP → SMS OTP → MFA → Registration Success
