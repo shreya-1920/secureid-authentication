@@ -1,4 +1,4 @@
-SecureID Authentication & Registration System
+#SecureID Authentication & Registration System
 
 A full-stack Identity and Access Management (IAM) authentication system built as part of an internship assignment.
 
