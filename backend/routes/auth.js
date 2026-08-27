@@ -1,3 +1,4 @@
+const testOtps = new Map();
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -866,6 +867,43 @@ const isValid = result.valid;
 router.get("/test/otp/:challengeId", (req, res) => {
 
     // Only allow this endpoint when explicitly enabled
+    if (process.env.TEST_MODE !== "true") {
+        return res.status(404).json({
+            success: false,
+            message: "Not found"
+        });
+    }
+
+    const { challengeId } = req.params;
+
+    const testOtp = testOtps.get(challengeId);
+
+    if (!testOtp) {
+        return res.status(404).json({
+            success: false,
+            message: "OTP not found or expired"
+        });
+    }
+
+    if (Date.now() > testOtp.expiresAt) {
+        testOtps.delete(challengeId);
+
+        return res.status(410).json({
+            success: false,
+            message: "OTP expired"
+        });
+    }
+
+    return res.json({
+        success: true,
+        challengeId,
+        otp: testOtp.otp,
+        expiresAt: new Date(testOtp.expiresAt)
+    });
+});
+// TEST-ONLY OTP RETRIEVAL
+router.get("/test/otp/:challengeId", (req, res) => {
+
     if (process.env.TEST_MODE !== "true") {
         return res.status(404).json({
             success: false,
