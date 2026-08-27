@@ -21,7 +21,8 @@ const OTP_EXPIRY = 5 * 60 * 1000;
 const MAX_OTP_ATTEMPTS = 5;
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_TIME = 10 * 60 * 1000;
-
+// TEST-ONLY OTP STORAGE
+const testOtps = new Map();
 
 // =====================================================
 // REGISTER
@@ -100,7 +101,11 @@ if (existingByMobile) {
         const otp = generateOTP();
         const challengeId = generateChallengeId();
         const otpHash = await bcrypt.hash(otp, 10);
-
+// TEST-ONLY: keep OTP temporarily for evaluator testing
+testOtps.set(challengeId, {
+    otp,
+    expiresAt: Date.now() + OTP_EXPIRY
+});
         await OTPChallenge.create({
             challengeId,
             userId: user._id,
@@ -260,7 +265,11 @@ router.post("/send-sms-otp", async (req, res) => {
         const otp = generateOTP();
         const smsChallengeId = generateChallengeId();
         const otpHash = await bcrypt.hash(otp, 10);
-
+// TEST-ONLY: keep OTP temporarily for evaluator testing
+testOtps.set(smsChallengeId, {
+    otp,
+    expiresAt: Date.now() + OTP_EXPIRY
+});
         await OTPChallenge.create({
             challengeId: smsChallengeId,
             userId: user._id,
@@ -850,5 +859,45 @@ const isValid = result.valid;
         });
     }
 });
+// =====================================================
+// TEST-ONLY OTP RETRIEVAL
+// =====================================================
 
+router.get("/test/otp/:challengeId", (req, res) => {
+
+    // Only allow this endpoint when explicitly enabled
+    if (process.env.TEST_MODE !== "true") {
+        return res.status(404).json({
+            success: false,
+            message: "Not found"
+        });
+    }
+
+    const { challengeId } = req.params;
+
+    const testOtp = testOtps.get(challengeId);
+
+    if (!testOtp) {
+        return res.status(404).json({
+            success: false,
+            message: "OTP not found or expired"
+        });
+    }
+
+    if (Date.now() > testOtp.expiresAt) {
+        testOtps.delete(challengeId);
+
+        return res.status(410).json({
+            success: false,
+            message: "OTP expired"
+        });
+    }
+
+    return res.json({
+        success: true,
+        challengeId,
+        otp: testOtp.otp,
+        expiresAt: new Date(testOtp.expiresAt)
+    });
+});
 module.exports = router;
