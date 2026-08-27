@@ -5,7 +5,8 @@ let smsChallengeId = null;
 
 let userEmail = "";
 let userMobile = "";
-
+let loginChallengeId = null;
+let loginEmail = "";
 
 /* =========================================================
    ALL SCREENS
@@ -22,7 +23,12 @@ const screens = [
   "mfaMethodScreen",
   "authSetupScreen",
   "mfaVerifyScreen",
-  "successScreen"
+  "successScreen",
+
+  "loginScreen",
+  "loginMethodScreen",
+  "loginOtpScreen",
+  "dashboardScreen"
 ];
 
 
@@ -161,67 +167,73 @@ function updateBackButton(id) {
    BACK BUTTON FUNCTIONALITY
    ========================================================= */
 
-document.getElementById("globalBack").onclick = function () {
+const globalBack = document.getElementById("globalBack");
 
-  const activeScreen =
-    document.querySelector(".screen.active");
+if (globalBack) {
 
-  if (!activeScreen) {
-    return;
-  }
+  globalBack.onclick = function () {
 
+    const activeScreen =
+      document.querySelector(".screen.active");
 
-  const id = activeScreen.id;
-
-
-  if (
-    id === "emailOtpScreen" ||
-    id === "emailWrongScreen" ||
-    id === "emailExpiredScreen"
-  ) {
-
-    show("registerScreen");
-    return;
-
-  }
+    if (!activeScreen) {
+      return;
+    }
 
 
-  if (
-    id === "mobileOtpScreen" ||
-    id === "mobileWrongScreen" ||
-    id === "mobileMaxScreen"
-  ) {
-
-    show("emailOtpScreen");
-    return;
-
-  }
+    const id = activeScreen.id;
 
 
-  if (id === "mfaMethodScreen") {
+    if (
+      id === "emailOtpScreen" ||
+      id === "emailWrongScreen" ||
+      id === "emailExpiredScreen"
+    ) {
 
-    show("mobileOtpScreen");
-    return;
+      show("registerScreen");
+      return;
 
-  }
-
-
-  if (id === "authSetupScreen") {
-
-    show("mfaMethodScreen");
-    return;
-
-  }
+    }
 
 
-  if (id === "mfaVerifyScreen") {
+    if (
+      id === "mobileOtpScreen" ||
+      id === "mobileWrongScreen" ||
+      id === "mobileMaxScreen"
+    ) {
 
-    show("authSetupScreen");
-    return;
+      show("emailOtpScreen");
+      return;
 
-  }
+    }
 
-};
+
+    if (id === "mfaMethodScreen") {
+
+      show("mobileOtpScreen");
+      return;
+
+    }
+
+
+    if (id === "authSetupScreen") {
+
+      show("mfaMethodScreen");
+      return;
+
+    }
+
+
+    if (id === "mfaVerifyScreen") {
+
+      show("authSetupScreen");
+      return;
+
+    }
+
+  };
+
+}
 
 
 /* =========================================================
@@ -370,14 +382,10 @@ function setupOtp(containerId) {
 }
 
 
-const getEmailOtp =
-  setupOtp("emailOtp");
-
-const getMobileOtp =
-  setupOtp("mobileOtp");
-
-const getMfaOtp =
-  setupOtp("mfaOtp");
+const getEmailOtp = setupOtp("emailOtp");
+const getMobileOtp = setupOtp("mobileOtp");
+const getMfaOtp = setupOtp("mfaOtp");
+const getLoginOtp = setupOtp("loginOtp");
 
 
 /* =========================================================
@@ -1091,36 +1099,449 @@ document
   };
 
 
-/* =========================================================
-   CONTINUE TO LOGIN
-   PART 2
-   ========================================================= */
+// =========================================================
+// LOGIN JOURNEY - PART 2
+// =========================================================
 
-document
-  .getElementById("continueLogin")
-  .onclick = () => {
+// Registration success -> Login
+const continueLogin = document.getElementById("continueLogin");
+
+if (continueLogin) {
+  continueLogin.onclick = () => {
+    show("loginScreen");
+  };
+}
+
+
+// Existing "Login" button/link -> Login screen
+const goLogin = document.getElementById("goLogin");
+
+if (goLogin) {
+  goLogin.onclick = () => {
+    show("loginScreen");
+  };
+}
+
+
+// Create account -> Registration
+const goRegister = document.getElementById("goRegister");
+
+if (goRegister) {
+  goRegister.onclick = () => {
+    show("registerScreen");
+  };
+}
+
+
+// ---------------------------------------------------------
+// LOGIN
+// ---------------------------------------------------------
+
+const loginForm = document.getElementById("loginForm");
+
+if (loginForm) {
+
+  loginForm.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    error("loginError");
+
+    loginEmail = document
+      .getElementById("loginEmail")
+      .value
+      .trim();
+
+    const password = document
+      .getElementById("loginPassword")
+      .value;
+
+    try {
+
+      const data = await api("/login", {
+        method: "POST",
+
+        body: JSON.stringify({
+          email: loginEmail,
+          password: password
+        })
+      });
+
+
+      if (data.mfaRequired) {
+
+        loginChallengeId = data.challengeId;
+
+        document.getElementById(
+          "loginEmailDisplay"
+        ).textContent = loginEmail;
+
+        clearOtp("loginOtp");
+
+
+        if (data.method === "email") {
+
+          show("loginOtpScreen");
+
+        } else {
+
+          show("loginMethodScreen");
+
+        }
+
+        return;
+      }
+
+
+      await loadDashboard();
+
+    } catch (err) {
+
+      error(
+        "loginError",
+        err.message
+      );
+
+    }
+
+  });
+
+}
+
+
+// ---------------------------------------------------------
+// LOGIN METHOD
+// ---------------------------------------------------------
+
+const continueLoginMethod =
+  document.getElementById("continueLoginMethod");
+
+if (continueLoginMethod) {
+
+  continueLoginMethod.onclick = () => {
+
+    const selected = document.querySelector(
+      'input[name="loginMethod"]:checked'
+    );
+
+
+    if (!selected) {
+
+      error(
+        "methodError",
+        "Please select an authentication method."
+      );
+
+      return;
+    }
+
+
+    if (selected.value === "email") {
+
+      document.getElementById(
+        "loginEmailDisplay"
+      ).textContent = loginEmail;
+
+      clearOtp("loginOtp");
+
+      show("loginOtpScreen");
+
+    } else {
+
+      error(
+        "methodError",
+        "Only Email OTP is currently enabled."
+      );
+
+    }
+
+  };
+
+}
+
+
+// ---------------------------------------------------------
+// VERIFY LOGIN OTP
+// ---------------------------------------------------------
+
+const verifyLoginOtp =
+  document.getElementById("verifyLoginOtp");
+
+if (verifyLoginOtp) {
+
+  verifyLoginOtp.onclick = async () => {
+
+    const otp = getLoginOtp();
+
+
+    if (otp.length !== 6) {
+
+      error(
+        "loginOtpError",
+        "Please enter all 6 digits."
+      );
+
+      return;
+    }
+
+
+    try {
+
+      await api("/verify-login-otp", {
+        method: "POST",
+
+        body: JSON.stringify({
+
+          challengeId:
+            loginChallengeId,
+
+          otp: otp
+
+        })
+
+      });
+
+
+      clearOtp("loginOtp");
+
+      await loadDashboard();
+
+
+    } catch (err) {
+
+      error(
+        "loginOtpError",
+        err.message
+      );
+
+    }
+
+  };
+
+}
+
+
+// ---------------------------------------------------------
+// BACK TO LOGIN METHOD
+// ---------------------------------------------------------
+
+const backToLoginMethod =
+  document.getElementById("backToLoginMethod");
+
+if (backToLoginMethod) {
+
+  backToLoginMethod.onclick = () => {
+
+    clearOtp("loginOtp");
+
+    error("loginOtpError");
+
+    show("loginMethodScreen");
+
+  };
+
+}
+
+
+// ---------------------------------------------------------
+// BACK TO LOGIN
+// ---------------------------------------------------------
+
+const backToLogin =
+  document.getElementById("backToLogin");
+
+if (backToLogin) {
+
+  backToLogin.onclick = () => {
+
+    clearOtp("loginOtp");
+
+    error("loginOtpError");
+
+    show("loginScreen");
+
+  };
+
+}
+
+
+// ---------------------------------------------------------
+// RESEND LOGIN OTP
+// ---------------------------------------------------------
+
+const resendLoginOtp =
+  document.getElementById("resendLoginOtp");
+
+if (resendLoginOtp) {
+
+  resendLoginOtp.onclick = async () => {
+
+    try {
+
+      const password = document
+        .getElementById("loginPassword")
+        .value;
+
+
+      const data = await api("/login", {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          email: loginEmail,
+
+          password: password
+
+        })
+
+      });
+
+
+      if (data.mfaRequired) {
+
+        loginChallengeId =
+          data.challengeId;
+
+        clearOtp("loginOtp");
+
+        error("loginOtpError");
+
+      }
+
+    } catch (err) {
+
+      error(
+        "loginOtpError",
+        err.message
+      );
+
+    }
+
+  };
+
+}
+
+
+// ---------------------------------------------------------
+// DASHBOARD
+// ---------------------------------------------------------
+
+async function loadDashboard() {
+
+  try {
+
+    const data = await api("/me");
+
+
+    if (!data.success) {
+
+      throw new Error(
+        "Authentication failed."
+      );
+
+    }
+
+
+    const dashboardEmail =
+      document.getElementById(
+        "dashboardEmail"
+      );
+
+
+    if (dashboardEmail) {
+
+      dashboardEmail.textContent =
+        data.user.email;
+
+    }
+
+
+    show("dashboardScreen");
+
+
+  } catch (err) {
+
+    show("loginScreen");
+
+    error(
+      "loginError",
+      err.message
+    );
+
+  }
+
+}
+
+
+// ---------------------------------------------------------
+// LOGOUT
+// ---------------------------------------------------------
+
+const logoutButton =
+  document.getElementById("logoutButton");
+
+if (logoutButton) {
+
+  logoutButton.onclick = async () => {
+
+    try {
+
+      await api("/logout", {
+        method: "POST"
+      });
+
+      show("loginScreen");
+
+    } catch (err) {
+
+      alert(err.message);
+
+    }
+
+  };
+
+}
+
+
+// ---------------------------------------------------------
+// FORGOT PASSWORD
+// ---------------------------------------------------------
+
+const forgotPassword =
+  document.getElementById("forgotPassword");
+
+if (forgotPassword) {
+
+  forgotPassword.onclick = () => {
 
     alert(
-      "Login journey will be implemented in Part 2."
+      "Password reset functionality will be implemented separately."
     );
 
   };
 
+}
 
-/* =========================================================
-   LOGIN LINK
-   PART 2
-   ========================================================= */
 
-document
-  .getElementById("goLogin")
-  .onclick = () => {
+// ---------------------------------------------------------
+// GOOGLE LOGIN
+// ---------------------------------------------------------
+
+const googleLogin =
+  document.getElementById("googleLogin");
+
+if (googleLogin) {
+
+  googleLogin.onclick = () => {
 
     alert(
-      "Login journey will be implemented in Part 2."
+      "Google authentication is not enabled for this assignment."
     );
 
   };
+
+}
 
 
 /* =========================================================

@@ -921,3 +921,254 @@ select:focus {
     height: 40px;
   }
 }
+/* =====================================================
+   RESPONSIVE FIX
+   ===================================================== */
+
+@media (max-width: 540px) {
+
+    .page {
+        padding: 12px;
+    }
+
+    .card {
+        width: 100%;
+        padding: 23px 19px 25px;
+        border-radius: 15px;
+    }
+
+    .brand {
+        margin-bottom: 18px;
+    }
+
+    .step-navigation {
+        margin-bottom: 20px;
+    }
+
+    .steps {
+        gap: 18px;
+    }
+
+    .step {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+    }
+
+    .step:not(:last-child)::after {
+        left: 22px;
+        width: 18px;
+    }
+
+    /* Registration stays ONE column on mobile */
+    #registerScreen form {
+        display: block;
+        width: 100%;
+    }
+
+    #registerScreen .requirements {
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    #registerScreen .terms {
+        width: 100%;
+        display: flex;
+    }
+
+    #registerScreen .primary {
+        width: 100%;
+    }
+
+    input,
+    select {
+        height: 40px;
+    }
+
+    .mobile-row {
+        grid-template-columns: 78px 1fr;
+    }
+}
+
+/* =========================================================
+   LOGIN PART 2
+   ========================================================= */
+
+/* ---------- Login form ---------- */
+
+#loginScreen form {
+    margin-top: 18px;
+}
+
+.login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 9px 0 4px;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.remember input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+.login-options .text-button {
+    font-size: 10px;
+}
+
+
+/* ---------- OR divider ---------- */
+
+.login-or {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0;
+    color: #8992a7;
+    font-size: 10px;
+}
+
+.login-or::before,
+.login-or::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e5e8ef;
+}
+
+.login-or span {
+    flex-shrink: 0;
+}
+
+
+/* ---------- Google button ---------- */
+
+.google-button {
+    width: 100%;
+    height: 37px;
+    border: 1px solid #dfe3ed;
+    border-radius: 7px;
+    background: #fff;
+    color: #30394e;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.google-button:hover {
+    background: #fafbff;
+}
+
+.google-icon {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+
+/* ---------- Login method screen ---------- */
+
+#loginMethodScreen .methods {
+    margin-top: 18px;
+}
+
+#loginMethodScreen .primary {
+    margin-top: 8px;
+}
+
+
+/* ---------- Login OTP ---------- */
+
+#loginOtpScreen {
+    position: relative;
+}
+
+.login-back {
+    position: absolute;
+    left: 0;
+    top: 2px;
+}
+
+#loginOtpScreen .top-icon {
+    margin-top: 8px;
+}
+
+#loginOtpScreen .otp {
+    margin-top: 21px;
+}
+
+#loginOtpScreen .primary {
+    margin-top: 6px;
+}
+
+
+/* ---------- Dashboard ---------- */
+
+#dashboardScreen .success-list {
+    text-align: left;
+}
+
+
+/* =========================================================
+   LOGIN MOBILE
+   ========================================================= */
+
+@media (max-width: 540px) {
+
+    #loginScreen form {
+        margin-top: 16px;
+    }
+
+    .login-options {
+        margin-top: 10px;
+    }
+
+    .google-button {
+        height: 40px;
+    }
+
+    #loginMethodScreen .method {
+        padding: 10px;
+    }
+
+    #loginOtpScreen .otp {
+        gap: 6px;
+    }
+
+    #loginOtpScreen .otp input {
+        width: 39px;
+        height: 43px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    #loginOtpScreen .otp {
+        gap: 4px;
+    }
+
+    #loginOtpScreen .otp input {
+        width: 36px;
+        height: 40px;
+    }
+}

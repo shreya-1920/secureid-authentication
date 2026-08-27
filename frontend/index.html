@@ -1128,11 +1128,291 @@
       </section>
 
 
+    
+<!-- ================= LOGIN SCREEN ================= -->
+
+<section class="screen" id="loginScreen">
+
+    <div class="top-icon shield-icon">♙</div>
+
+    <h1>Welcome back!</h1>
+
+    <p class="subtitle">
+        Login to your account
+    </p>
+
+    <form id="loginForm">
+
+        <label for="loginEmail">Email or Username</label>
+
+        <input
+            type="text"
+            id="loginEmail"
+            placeholder="Enter email or username"
+            autocomplete="username"
+            required
+        >
+
+        <label for="loginPassword">Password</label>
+
+        <div class="password">
+            <input
+                type="password"
+                id="loginPassword"
+                placeholder="Enter password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button
+                type="button"
+                class="eye"
+                data-target="loginPassword"
+            >◉</button>
+        </div>
+
+        <div class="login-options">
+
+            <label class="remember">
+                <input type="checkbox" id="rememberMe">
+                <span>Remember me</span>
+            </label>
+
+            <button
+                type="button"
+                class="text-button"
+                id="forgotPassword"
+            >
+                Forgot password?
+            </button>
+
+        </div>
+
+        <div id="loginError" class="error"></div>
+
+        <button type="submit" class="primary">
+            Login
+        </button>
+
+    </form>
+
+    <div class="login-or">
+        <span>or</span>
     </div>
 
+    <button
+        type="button"
+        class="google-button"
+        id="googleLogin"
+    >
+        <span class="google-icon">G</span>
+        Continue with Google
+    </button>
+
+    <p class="switch">
+        New here?
+        <button
+            type="button"
+            class="text-button"
+            id="goRegister"
+        >
+            Create an account
+        </button>
+    </p>
+
+</section>
+
+
+<!-- ================= CHOOSE MFA METHOD ================= -->
+
+<section class="screen" id="loginMethodScreen">
+
+    <div class="top-icon shield-icon">♙</div>
+
+    <h1>Verify your identity</h1>
+
+    <p class="subtitle">
+        Choose a method to continue
+    </p>
+
+    <div class="methods">
+
+        <label class="method selected">
+
+            <input
+                type="radio"
+                name="loginMethod"
+                value="email"
+                checked
+            >
+
+            <span class="method-icon">✉</span>
+
+            <span>
+                <b>Email OTP</b>
+                <small>Receive a code on your email</small>
+            </span>
+
+            <span class="radio"></span>
+
+        </label>
+
+
+        <label class="method">
+
+            <input
+                type="radio"
+                name="loginMethod"
+                value="sms"
+            >
+
+            <span class="method-icon">☎</span>
+
+            <span>
+                <b>SMS OTP</b>
+                <small>Receive a code on your mobile</small>
+            </span>
+
+            <span class="radio"></span>
+
+        </label>
+
+
+        <label class="method">
+
+            <input
+                type="radio"
+                name="loginMethod"
+                value="authenticator"
+            >
+
+            <span class="method-icon">🔒</span>
+
+            <span>
+                <b>Authenticator App</b>
+                <small>Use code from your authenticator app</small>
+            </span>
+
+            <span class="radio"></span>
+
+        </label>
+
+    </div>
+
+    <div id="methodError" class="error"></div>
+
+    <button
+        type="button"
+        class="primary"
+        id="continueLoginMethod"
+    >
+        Continue
+    </button>
+
+</section>
+
+
+<!-- ================= LOGIN EMAIL OTP ================= -->
+
+<section class="screen" id="loginOtpScreen">
+
+    <button
+        type="button"
+        class="back-arrow login-back"
+        id="backToLoginMethod"
+    >
+        ←
+    </button>
+
+    <div class="top-icon">
+        ✉
+    </div>
+
+    <h1>Email Verification</h1>
+
+    <p class="subtitle">
+        Enter the 6-digit code sent to<br>
+        <b id="loginEmailDisplay"></b>
+    </p>
+
+    <div class="otp" id="loginOtp">
+
+        <input maxlength="1" inputmode="numeric">
+        <input maxlength="1" inputmode="numeric">
+        <input maxlength="1" inputmode="numeric">
+        <input maxlength="1" inputmode="numeric">
+        <input maxlength="1" inputmode="numeric">
+        <input maxlength="1" inputmode="numeric">
+
+    </div>
+
+    <div id="loginOtpError" class="error"></div>
+
+    <p class="expires">
+        Code expires in <b id="loginOtpTimer">02:45</b>
+    </p>
+
+    <button
+        type="button"
+        class="text-button resend"
+        id="resendLoginOtp"
+    >
+        Resend code (00:25)
+    </button>
+
+    <button
+        type="button"
+        class="primary"
+        id="verifyLoginOtp"
+    >
+        Continue
+    </button>
+
+    <button
+        type="button"
+        class="bottom-link"
+        id="backToLogin"
+    >
+        Didn't receive the code?
+    </button>
+
+</section>
+
+
+<!-- ================= LOGIN SUCCESS / DASHBOARD ================= -->
+
+<section class="screen" id="dashboardScreen">
+
+    <div class="success-icon">
+        ✓
+    </div>
+
+    <h1>Welcome back!</h1>
+
+    <p class="subtitle">
+        You have successfully logged in.
+    </p>
+
+    <div class="success-list">
+
+        <span>✓ Identity verified</span>
+        <span>✓ MFA verified</span>
+        <span>✓ Secure session created</span>
+
+    </div>
+
+    <button
+        type="button"
+        class="primary"
+        id="logoutButton"
+    >
+        Logout
+    </button>
+
+</section>
+</div>
+
   </div>
-
-
   <script src="app.js"></script>
 
 </body>
