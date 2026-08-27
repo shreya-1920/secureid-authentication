@@ -1,4 +1,4 @@
-const API = "http://localhost:5000/api";
+const API = "https://secureid-authentication.onrender.com/api";
 
 let emailChallengeId = null;
 let smsChallengeId = null;
