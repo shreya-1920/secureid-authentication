@@ -1172,3 +1172,121 @@ select:focus {
         height: 40px;
     }
 }
+/* =========================================================
+   LOGIN RESPONSIVE ONLY
+   DO NOT CHANGE REGISTRATION STYLES
+   ========================================================= */
+
+@media (max-width: 540px) {
+
+    /* Login main screen */
+    #loginScreen {
+        width: 100%;
+    }
+
+    #loginScreen form {
+        width: 100%;
+    }
+
+    #loginScreen input {
+        width: 100%;
+    }
+
+    #loginScreen .password {
+        width: 100%;
+    }
+
+    #loginScreen .login-options {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    #loginScreen .remember {
+        white-space: nowrap;
+    }
+
+    #loginScreen .google-button {
+        width: 100%;
+    }
+
+
+    /* Login method screen */
+
+    #loginMethodScreen {
+        width: 100%;
+    }
+
+    #loginMethodScreen .methods {
+        width: 100%;
+    }
+
+    #loginMethodScreen .method {
+        width: 100%;
+        min-height: 52px;
+    }
+
+
+    /* Login OTP screen */
+
+    #loginOtpScreen {
+        width: 100%;
+    }
+
+    #loginOtpScreen .otp {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    #loginOtpScreen .otp input {
+        width: 39px;
+        height: 43px;
+        flex: 0 0 39px;
+    }
+
+
+    /* Dashboard */
+
+    #dashboardScreen {
+        width: 100%;
+    }
+
+    #dashboardScreen .success-list {
+        width: 100%;
+    }
+
+    #dashboardScreen .primary {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    #loginScreen .login-options {
+        font-size: 9px;
+    }
+
+    #loginScreen .login-options .text-button {
+        font-size: 9px;
+    }
+
+    #loginOtpScreen .otp {
+        gap: 4px;
+    }
+
+    #loginOtpScreen .otp input {
+        width: 35px;
+        height: 40px;
+        flex-basis: 35px;
+    }
+
+}
